@@ -33,6 +33,7 @@ import java.util.HexFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Flow;
@@ -74,12 +75,16 @@ import java.util.regex.Pattern;
  */
 public final class UpdateCheck {
     /**
-     * The package registry builds and models are published to. A distributor sets both to their own GitLab generic
-     * package registry (and replaces {@code update-signing.pub} with their own signing key); the {@code .invalid}
-     * placeholder never resolves, so the check skips silently.
+     * The package registry builds and models are published to, baked in at build time: the {@code update.registry}
+     * Maven property fills the {@value #CONFIG} resource. A distributor builds with
+     * {@code -Dupdate.registry=https://<host>/api/v4/projects/<id>/packages/generic/} (and replaces
+     * {@code update-signing.pub} with their own signing key). Unset or malformed, it is the {@code .invalid}
+     * placeholder, which never resolves, so the check skips silently.
      */
-    static final String HOST = "updates.invalid";
-    static final String PACKAGES = "https://" + HOST + "/api/v4/projects/0/packages/generic/";
+    static final String CONFIG = "/update.properties";
+    static final String UNSET = "https://updates.invalid/api/v4/projects/0/packages/generic/";
+    static final String PACKAGES = registry(UpdateCheck.class.getResourceAsStream(CONFIG));
+    static final String HOST = URI.create(PACKAGES).getHost();
     static final String MODEL_POINTER = PACKAGES + "mtgai-model/latest/latest.json";
     static final Duration CONNECT = Duration.ofSeconds(3);
     static final Duration POINTER_BUDGET = Duration.ofSeconds(5);
@@ -335,6 +340,23 @@ public final class UpdateCheck {
             return v.verify(sig);
         } catch (GeneralSecurityException | RuntimeException e) {
             return false;
+        }
+    }
+
+    /** The {@code registry} of a {@value #CONFIG} stream: an https URL ending in "/", else {@link #UNSET}. */
+    static String registry(InputStream in) {
+        try (in) {
+            if (in == null) {
+                return UNSET;
+            }
+            final Properties p = new Properties();
+            p.load(in);
+            final String r = p.getProperty("registry", "").trim();
+            final URI u = new URI(r);
+            return "https".equals(u.getScheme()) && u.getHost() != null && r.endsWith("/") && u.getRawUserInfo() == null
+                    && u.getRawQuery() == null && u.getRawFragment() == null ? r : UNSET;
+        } catch (IOException | URISyntaxException | RuntimeException e) {
+            return UNSET;
         }
     }
 

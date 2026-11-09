@@ -23,6 +23,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>21</maven.compiler.release>
         <forge.version>2.0.15-SNAPSHOT</forge.version>
+        <junit.version>5.11.4</junit.version>
+        <!-- Package registry the packaged launchers' update check reads (UpdateCheck), e.g.
+             https://host/api/v4/projects/N/packages/generic/ ; empty = update check off. Set with -Dupdate.registry=. -->
+        <update.registry></update.registry>
+        <!-- Tests: a Forge res/ directory and a directory of .dck decks (override with -Dmtgai.res= / -Dmtgai.decks=) -->
+        <mtgai.res>${project.basedir}/res</mtgai.res>
+        <mtgai.decks>${project.basedir}/decks</mtgai.decks>
     </properties>
 
     <dependencies>
@@ -49,9 +56,28 @@
             <artifactId>jeromq</artifactId>
             <version>0.6.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <excludes><exclude>update.properties</exclude></excludes>
+            </resource>
+            <resource>
+                <!-- only this file is filtered: it carries ${update.registry} -->
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes><include>update.properties</include></includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -78,6 +104,7 @@
                             <consoleOutput>true</consoleOutput>
                             <failOnViolation>true</failOnViolation>
                             <violationSeverity>warning</violationSeverity>
+                            <includeTestSourceDirectory>true</includeTestSourceDirectory>
                         </configuration>
                         <goals><goal>check</goal></goals>
                     </execution>
@@ -115,6 +142,21 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.2</version>
+                <configuration>
+                    <!-- one JVM for all test classes: the card DB loads once (~10 s) -->
+                    <forkCount>1</forkCount>
+                    <reuseForks>true</reuseForks>
+                    <argLine>-Xmx3g -Xss8m -Dforge.mtgai.noGc=true</argLine>
+                    <systemPropertyVariables>
+                        <mtgai.res>${mtgai.res}</mtgai.res>
+                        <mtgai.decks>${mtgai.decks}</mtgai.decks>
+                    </systemPropertyVariables>
+                </configuration>
             </plugin>
         </plugins>
     </build>

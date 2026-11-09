@@ -66,20 +66,18 @@ If the Forge Table tag you build against declares a different version, pass it w
 (Forge Table's `package.sh --overlay ZIP` does that for you). Run it after `mvn package`:
 
 ```bash
-scripts/overlay.sh --model lyra-model-v58625.zip [--out DIR|FILE.zip]   # default: target/lyra-forge-plugin-<version>-overlay.zip
+scripts/overlay.sh --model lyra-model-v111994.zip [--out DIR|FILE.zip]   # default: target/lyra-forge-plugin-<version>-overlay.zip
 ```
 
 ### Getting the model
 
-The Lyra weights are a separate release asset, `lyra-model-v<N>.zip` (for example `lyra-model-v58625.zip`),
-intended to be attached to the same release as this plugin's source.
-
-**Known interim gap.** No weights asset has been published yet, so there is no download URL and no zip checksum to
-give here (none is invented). When the release exists, its page will carry the asset link and the zip's sha256; then:
+The Lyra weights are a separate release asset, `lyra-model-v<N>.zip`, attached to the same release as this
+plugin's source: [`lyra-model-v111994.zip`](https://github.com/mdbook/lyra-forge-plugin/releases/download/v0.1.0-alpha.1/lyra-model-v111994.zip)
+on the [`v0.1.0-alpha.1`](https://github.com/mdbook/lyra-forge-plugin/releases/tag/v0.1.0-alpha.1) release.
 
 ```bash
-sha256sum lyra-model-v<N>.zip        # must equal the sha256 on the release page
-unzip lyra-model-v<N>.zip -d lyra-model
+sha256sum lyra-model-v111994.zip     # must equal 27f35422949fa040fb9bfeec2ec1709bed6f7e24f3001555ad3196e13be3e179
+unzip lyra-model-v111994.zip -d lyra-model
 ```
 
 Inside, `latest.json` carries the sha256 of the `.onnx` policy. The seat and `scripts/overlay.sh` check the model
@@ -106,8 +104,8 @@ relative to Forge's working directory). The folder looks like this:
 
 ```
 neural/
-  latest.json             {"version": 58625, "file": "policy-058625.onnx", "sha256": "...", "encoder_version": 10}
-  policy-058625.onnx      the policy network (the file latest.json names)
+  latest.json             {"version": 111994, "file": "policy-111994.onnx", "sha256": "...", "encoder_version": 10}
+  policy-111994.onnx      the policy network (the file latest.json names)
   registry.tsv            card name -> id table for every card (preferred when present)
   cardvocab-v1.txt        the older, smaller card id list (used when registry.tsv is missing)
   2026-09-28/             the archetype deck set: the Pauper deck lists (.dck) the opponent classifier knows
@@ -148,7 +146,7 @@ Run the game with a larger thread stack (`-Xss8m`), as Forge Table's launchers d
 No GUI? Play one headless game against Forge's AI with the fat jar (about a minute on a laptop):
 
 ```bash
-unzip lyra-model-v58625.zip -d lyra-model
+unzip lyra-model-v111994.zip -d lyra-model
 M=lyra-model        # use the unpacked folder that holds latest.json; its deck folder holds the .dck files
 java -Xmx3g -Xss8m -jar target/lyra-forge-plugin-0.1.0-alpha.1-all.jar --res ../forge-table/forge-gui/res \
   bench -a onnx,forge-default --model $M --vocab $M/registry.tsv \
