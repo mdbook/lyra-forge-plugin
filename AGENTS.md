@@ -1,6 +1,6 @@
 # AGENTS.md
 
-A guide for coding agents working in this repo. `README.md` is the user-facing documentation; this file covers what
+A guide for coding agents working in this repo. `README.md` and `docs/` are the user-facing documentation; this file covers what
 you need to change the code safely.
 
 ## What this is
@@ -20,7 +20,7 @@ without a GUI, self-play workers that write training trajectories, benchmarking 
 pom.xml              build: forge-ai dependency, ONNX Runtime, gson, jeromq; checkstyle; shade (fat jar)
 checkstyle.xml       style and import rules, run in the validate phase
 scripts/overlay.sh   packs the plugin jar and a Lyra model into an overlay zip for a Forge Table release
-src/main/java/mtgai/ all source, one package per area (see the Layout table in README.md)
+src/main/java/mtgai/ all source, one package per area (see docs/architecture.md)
 src/main/resources/  tinylog.properties, update-signing.pub (public key that verifies update pointers)
 ```
 
@@ -82,8 +82,9 @@ Run with `-Xss8m`; Forge needs the larger thread stack.
 - An empty catch block must name its exception `ignored`.
 - A class that overrides `equals` must override `hashCode`.
 - Comments and Javadoc are plain and factual; they describe what the code does and why.
-- Keep the README in step with the code. It documents system properties, CLI seat names, the model folder layout and
-  the decision surface; change it in the same commit when you change those.
+- Keep the docs in step with the code: system properties and the model folder layout are in `docs/configuration.md`,
+  CLI commands and seat names in `docs/cli.md`, the package layout and decision surface in `docs/architecture.md`.
+  Change them in the same commit when you change those.
 - Commit subjects name the area first, for example `scripts/overlay.sh: ...`.
 
 ## Gotchas
