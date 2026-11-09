@@ -1,0 +1,16 @@
+readme-quick-start:
+  image: maven:3.9-eclipse-temurin-21
+  variables:
+    # Put the usual ~/.m2/repository inside the checkout so GitLab can cache it.
+    MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+  cache:
+    key: maven
+    paths:
+      - .m2/repository/
+  script:
+    - git clone https://github.com/mdbook/forge-table
+    - cd forge-table && git checkout 1a127f06d02f3e8085ee4100b0b81160c8250e2e
+    - mvn -B -pl forge-ai -am -DskipTests -Dcheckstyle.skip -Dmaven.javadoc.skip=true install
+    - cd ..
+    # GitLab already checked out the plugin revision under test.
+    - mvn -B package

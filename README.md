@@ -53,6 +53,10 @@ the Forge fork that has the hooks it needs; stock Forge won't load it.
    mvn -B package
    ```
 
+   The GitLab `readme-quick-start` job runs the Forge Table clone, pinned checkout, install and plugin build commands
+   above with JDK 21 and Maven 3.9. It uses GitLab's plugin checkout instead of cloning the default branch, so it tests
+   the revision under review. CI caches the local Maven repository (`~/.m2/repository`, relocated into the checkout).
+
 2. Download the Lyra model from the
    [v0.1.0-alpha.1 release](https://github.com/mdbook/lyra-forge-plugin/releases/tag/v0.1.0-alpha.1) and check it:
 
