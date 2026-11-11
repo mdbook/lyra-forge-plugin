@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/icon/lyra-forge-plugin.svg" alt="" width="96" height="96"></p>
+
 <h1 align="center">lyra-forge-plugin</h1>
 
 <p align="center">
